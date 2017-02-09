@@ -1053,3 +1053,16 @@ class TestCodecs(tb.ConnectedTestCase):
                 DROP TABLE tab;
                 DROP TYPE enum_t;
             ''')
+
+    async def test_enum_in_array(self):
+        await self.con.execute('''
+            CREATE TYPE enum_t AS ENUM ('abc', 'def', 'ghi');
+        ''')
+        result = await self.con.fetchrow('''SELECT ARRAY[$1::enum_t];''',
+                                         'abc')
+
+        self.assertEqual(result, ['abc'])
+
+        await self.con.execute('''
+            DROP TYPE enum_t;
+        ''')
